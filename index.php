@@ -8,38 +8,19 @@ if (!defined('ALLOWED_ACCESS')) {
 // Configuration
 $config = [
     'app_name' => 'Laravel Herd Dashboard',
-    'github_url' => 'https://github.com/Hungnth/laragon-dashboard',
+    'github_url' => 'https://github.com/Hungnth/laravel-herd-dashboard',
     'excluded_folders' => ['.', '..', '.git', '.svn', '.htaccess', '.idea', '__pycache__', '.venv', 'assets'],
     'db_config' => [
         'host' => 'localhost',
         'user' => 'root',
         'password' => '',
-        'port' => 8039,
+        'port' => 3306,
     ],
     'domains_subfix' => '.test',
-    'herd_sites_path' => 'F:\laravel-herd\sites',
+    'herd_sites_path' => '%USERPROFILE%\Herd',
     'phpMyAdmin_url' => 'https://phpmyadmin.test'
 
 ];
-
-function handleQueryParameter(string $param): void
-{
-    if ($param === 'info') {
-        phpinfo();
-    }
-    if ($param === 'mailbox') {
-        include 'mailbox.php';
-    }
-}
-
-if (isset($_GET['q'])) {
-    $queryParam = htmlspecialchars(filter_input(INPUT_GET, 'q', FILTER_DEFAULT)) ?: null;
-    try {
-        handleQueryParameter($queryParam);
-    } catch (InvalidArgumentException $e) {
-        echo 'Error: ' . htmlspecialchars($e->getMessage());
-    }
-}
 
 // Get MySQL databases
 function getDatabases($config)
@@ -202,6 +183,7 @@ $systemInfo['Disk Total Space'] = $systemResources['disk_total'] . ' GB';
 <body class="bg-gray-50">
 
     <div class="min-h-screen">
+
         <!-- Header -->
         <header class="bg-white shadow-sm">
             <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
@@ -252,7 +234,7 @@ $systemInfo['Disk Total Space'] = $systemResources['disk_total'] . ' GB';
                         <span class="font-medium text-gray-700">Mailbox</span>
                     </a> -->
 
-                    <a href="?q=info"
+                    <a href="/info.php"
                         class="flex items-center justify-center px-4 py-3 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200 gap-2"
                         target="_blank">
                         <span class="">

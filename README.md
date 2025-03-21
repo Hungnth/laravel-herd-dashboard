@@ -11,4 +11,12 @@ cd dashboard
 herd link
 ```
 
-3. Kiểm tra lại trên Herd và truy cập.
+3. Sửa file `index.php`, các phần nên chỉnh sửa:
+
+    - `herd_sites_path`: Đường dẫn chứa các website của Laravel Herd
+
+    - `phpMyAdmin_url`: Nếu dùng phpMyAdmin
+    
+    -  `port`: Database port nếu không dùng port mặc định
+  
+4. Kiểm tra lại Laravel Herd đã nhận chưa và truy cập
