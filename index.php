@@ -24,18 +24,25 @@ $config = [
     'app_name' => 'Laravel Herd Dashboard',
     'github_url' => 'https://github.com/Hungnth/laravel-herd-dashboard',
     'excluded_folders' => ['.', '..', '.git', '.svn', '.htaccess', '.idea', '__pycache__', '.venv', 'assets'],
-    'db_config' => [
+    'mysql_config' => [
         'host' => 'localhost',
         'user' => 'root',
         'password' => '',
         'port' => 3366,
+    ],
+    'mariadb_config' => [
+        'host' => 'localhost',
+        'user' => 'root',
+        'password' => '',
+        'port' => 3367,
     ],
     'domains_subfix' => '.test',
     'paths' => [
         'wordpress' => 'F:\laravel-herd\sites',
         'laravel' => 'F:\Laravel\laravel12'
     ],
-    'phpMyAdmin_url' => 'https://phpmyadmin.test'
+    'mysql_url' => 'https://mysql.test',
+    'mariadb_url' => 'https://mariadb.test'
 ];
 
 
@@ -79,7 +86,7 @@ function getDatabases($config)
     return $databases;
 }
 
-$link = mysqli_connect($config['db_config']['host'], $config['db_config']['user'], $config['db_config']['password'], null, $config['db_config']['port']);
+$link = mysqli_connect($config['mysql_config']['host'], $config['mysql_config']['user'], $config['mysql_config']['password'], null, $config['mysql_config']['port']);
 $sql_version = mysqli_get_server_info($link);
 
 // Get system information
@@ -216,8 +223,9 @@ function getSiteStatistics($wordpressSites, $laravelSites)
 $wordpressSites = getWordPressSites($config['paths']['wordpress'], $config);
 $laravelSites = getLaravelSites($config['paths']['laravel'], $config);
 $siteStats = getSiteStatistics($wordpressSites, $laravelSites);
-$databases = getDatabases($config['db_config']);
-$phpMyAdminUrl = $config['phpMyAdmin_url'];
+$databases = getDatabases($config['mysql_config']);
+$phpMyAdminUrl = $config['mysql_url'];
+$mariadbUrl = $config['mariadb_url'];
 $systemInfo = getSystemInfo();
 
 // Get PHP Extensions
@@ -316,8 +324,10 @@ function getWordPressDatabaseInfo($configFilePath)
                     <div class="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
                         <div class="flex items-center gap-3">
                             <div class="p-2 bg-blue-100 rounded-lg">
-                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9"></path>
+                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9"></path>
                                 </svg>
                             </div>
                             <div>
@@ -343,7 +353,8 @@ function getWordPressDatabaseInfo($configFilePath)
                                 <img src="./assets/wordpress.svg" alt="wordpress" width="24" height="24">
                             </div>
                             <div>
-                                <div class="text-2xl font-bold text-gray-900"><?= $siteStats['wordpress_count']; ?></div>
+                                <div class="text-2xl font-bold text-gray-900"><?= $siteStats['wordpress_count']; ?>
+                                </div>
                                 <div class="text-sm text-gray-500">WordPress Sites</div>
                             </div>
                         </div>
@@ -354,14 +365,23 @@ function getWordPressDatabaseInfo($configFilePath)
             <!-- Quick Actions -->
             <div class="mb-8">
                 <h2 class="text-lg font-medium text-gray-900 mb-4">Quick Actions</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <a href="<?= $phpMyAdminUrl ?>"
                         class="flex items-center justify-center px-4 py-3 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200 gap-2"
                         target="_blank">
                         <span class="">
-                            <img src="https://phpmyadmin.test/favicon.ico" alt="phpMyAdmin" width="24" height="24">
+                            <img src="<?= $phpMyAdminUrl ?>/favicon.ico" alt="phpMyAdmin" width="24" height="24">
                         </span>
-                        <span class="font-medium text-gray-700">phpMyAdmin</span>
+                        <span class="font-medium text-gray-700">MySQL</span>
+                    </a>
+
+                    <a href="<?= $mariadbUrl ?>"
+                        class="flex items-center justify-center px-4 py-3 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200 gap-2"
+                        target="_blank">
+                        <span class="">
+                            <img src="<?= $mariadbUrl ?>/favicon.ico" alt="phpMyAdmin" width="24" height="24">
+                        </span>
+                        <span class="font-medium text-gray-700">MariaDB</span>
                     </a>
 
                     <a href="http://localhost:8025"
@@ -391,38 +411,43 @@ function getWordPressDatabaseInfo($configFilePath)
                 <h2 class="text-lg font-medium text-gray-900 mb-4">Laravel Projects</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
                     <?php if (empty($laravelSites)): ?>
-                        <div class="col-span-full">
-                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-                                <div class="text-yellow-700">No Laravel projects found in <?= htmlspecialchars($config['paths']['laravel']); ?></div>
-                            </div>
+                    <div class="col-span-full">
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                            <div class="text-yellow-700">No Laravel projects found in
+                                <?= htmlspecialchars($config['paths']['laravel']); ?></div>
                         </div>
+                    </div>
                     <?php else: ?>
-                        <?php foreach ($laravelSites as $site): ?>
-                            <div class="group bg-white rounded-lg shadow-sm p-4 border border-gray-200 hover:shadow-md transition-shadow">
-                                <div class="flex items-center justify-between mb-2">
-                                    <div class="flex items-center gap-3">
-                                        <?= $site['logo'] ?>
-                                        <span class="font-medium text-gray-900">
-                                            <?= htmlspecialchars($site['name']); ?>
-                                        </span>
-                                    </div>
-                                    <a href="<?= htmlspecialchars($site['url']); ?>" target="_blank" class="text-gray-400 hover:text-blue-600" title="Visit Site">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                        </svg>
-                                    </a>
-                                </div>
-                                <div class="text-sm text-gray-500 flex items-center justify-between">
-                                    <span>Database: <?= htmlspecialchars($site['database'] ?? 'Not Found'); ?></span>
-                                    <?php if ($site['database']): ?>
-                                        <a href="<?= $phpMyAdminUrl ?>/index.php?route=/database/structure&db=<?= urlencode($site['database']); ?>"
-                                            target="_blank" class="text-xs text-blue-600 hover:underline ml-2">
-                                            PHPMyAdmin
-                                        </a>
-                                    <?php endif; ?>
-                                </div>
+                    <?php foreach ($laravelSites as $site): ?>
+                    <div
+                        class="group bg-white rounded-lg shadow-sm p-4 border border-gray-200 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-3">
+                                <?= $site['logo'] ?>
+                                <span class="font-medium text-gray-900">
+                                    <?= htmlspecialchars($site['name']); ?>
+                                </span>
                             </div>
-                        <?php endforeach; ?>
+                            <a href="<?= htmlspecialchars($site['url']); ?>" target="_blank"
+                                class="text-gray-400 hover:text-blue-600" title="Visit Site">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14">
+                                    </path>
+                                </svg>
+                            </a>
+                        </div>
+                        <div class="text-sm text-gray-500 flex items-center justify-between">
+                            <span>Database: <?= htmlspecialchars($site['database'] ?? 'Not Found'); ?></span>
+                            <?php if ($site['database']): ?>
+                            <a href="<?= $phpMyAdminUrl ?>/index.php?route=/database/structure&db=<?= urlencode($site['database']); ?>"
+                                target="_blank" class="text-xs text-blue-600 hover:underline ml-2">
+                                PHPMyAdmin
+                            </a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
             </div>
@@ -432,43 +457,45 @@ function getWordPressDatabaseInfo($configFilePath)
                 <h2 class="text-lg font-medium text-gray-900 mb-4">WordPress Projects</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
                     <?php if (empty($wordpressSites)): ?>
-                        <div class="col-span-full">
-                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-                                <div class="text-yellow-700">No WordPress projects found in <?= htmlspecialchars($config['paths']['wordpress']); ?></div>
-                            </div>
+                    <div class="col-span-full">
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                            <div class="text-yellow-700">No WordPress projects found in
+                                <?= htmlspecialchars($config['paths']['wordpress']); ?></div>
                         </div>
+                    </div>
                     <?php else: ?>
-                        <?php foreach ($wordpressSites as $site): ?>
-                            <div class="group bg-white rounded-lg shadow-sm p-4 border border-gray-200 hover:shadow-md transition-shadow">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <?= $site['logo'] ?>
-                                    <span class="font-medium text-gray-900">
-                                        <?= htmlspecialchars($site['name']); ?>
-                                    </span>
-                                </div>
-                                <div class="text-sm text-gray-500 flex items-center justify-between mb-3">
-                                    <span>Database: <?= htmlspecialchars($site['database'] ?? 'Not Found'); ?></span>
-                                    <?php if ($site['database']): ?>
-                                        <a href="<?= $phpMyAdminUrl ?>/index.php?route=/database/structure&db=<?= urlencode($site['database']); ?>"
-                                            target="_blank" class="text-xs text-blue-600 hover:underline ml-2">
-                                            PHPMyAdmin
-                                        </a>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="flex gap-2">
-                                    <a href="<?= htmlspecialchars($site['url']); ?>"
-                                        class="flex-1 text-center px-3 py-1 bg-blue-50 text-blue-600 rounded text-sm hover:bg-blue-100 transition-colors"
-                                        target="_blank">
-                                        Visit Site
-                                    </a>
-                                    <a href="<?= htmlspecialchars($site['admin_url']); ?>"
-                                        class="flex-1 text-center px-3 py-1 bg-gray-50 text-gray-600 rounded text-sm hover:bg-gray-100 transition-colors"
-                                        target="_blank">
-                                        Admin
-                                    </a>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
+                    <?php foreach ($wordpressSites as $site): ?>
+                    <div
+                        class="group bg-white rounded-lg shadow-sm p-4 border border-gray-200 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-3 mb-2">
+                            <?= $site['logo'] ?>
+                            <span class="font-medium text-gray-900">
+                                <?= htmlspecialchars($site['name']); ?>
+                            </span>
+                        </div>
+                        <div class="text-sm text-gray-500 flex items-center justify-between mb-3">
+                            <span>Database: <?= htmlspecialchars($site['database'] ?? 'Not Found'); ?></span>
+                            <?php if ($site['database']): ?>
+                            <a href="<?= $phpMyAdminUrl ?>/index.php?route=/database/structure&db=<?= urlencode($site['database']); ?>"
+                                target="_blank" class="text-xs text-blue-600 hover:underline ml-2">
+                                PHPMyAdmin
+                            </a>
+                            <?php endif; ?>
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="<?= htmlspecialchars($site['url']); ?>"
+                                class="flex-1 text-center px-3 py-1 bg-blue-50 text-blue-600 rounded text-sm hover:bg-blue-100 transition-colors"
+                                target="_blank">
+                                Visit Site
+                            </a>
+                            <a href="<?= htmlspecialchars($site['admin_url']); ?>"
+                                class="flex-1 text-center px-3 py-1 bg-gray-50 text-gray-600 rounded text-sm hover:bg-gray-100 transition-colors"
+                                target="_blank">
+                                Admin
+                            </a>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
             </div>
@@ -478,34 +505,34 @@ function getWordPressDatabaseInfo($configFilePath)
                 <h2 class="text-lg font-medium text-gray-900 mb-4">Databases</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
                     <?php if (empty($databases)): ?>
-                        <div class="col-span-full">
-                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-                                <div class="text-yellow-700">No databases found</div>
+                    <div class="col-span-full">
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                            <div class="text-yellow-700">No databases found</div>
+                        </div>
+                    </div>
+                    <?php else: ?>
+                    <?php foreach ($databases as $db): ?>
+                    <a href="<?= $phpMyAdminUrl ?>/index.php?route=/database/structure&db=<?= urlencode($db['name']); ?>"
+                        class="group bg-white rounded-lg shadow-sm p-4 border border-gray-200 hover:shadow-md transition-shadow overflow-x-auto"
+                        target="_blank">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 7v10c0 2 1.5 3 3.5 3h9c2 0 3.5-1 3.5-3V7c0-2-1.5-3-3.5-3h-9C5.5 4 4 5 4 7zm0 3h16M4 14h16" />
+                                </svg>
+                                <span class="font-medium text-gray-900 group-hover:text-blue-600">
+                                    <?= htmlspecialchars($db['name']); ?>
+                                </span>
                             </div>
                         </div>
-                    <?php else: ?>
-                        <?php foreach ($databases as $db): ?>
-                            <a href="<?= $phpMyAdminUrl ?>/index.php?route=/database/structure&db=<?= urlencode($db['name']); ?>"
-                                class="group bg-white rounded-lg shadow-sm p-4 border border-gray-200 hover:shadow-md transition-shadow overflow-x-auto"
-                                target="_blank">
-                                <div class="flex items-center justify-between mb-2">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M4 7v10c0 2 1.5 3 3.5 3h9c2 0 3.5-1 3.5-3V7c0-2-1.5-3-3.5-3h-9C5.5 4 4 5 4 7zm0 3h16M4 14h16" />
-                                        </svg>
-                                        <span class="font-medium text-gray-900 group-hover:text-blue-600">
-                                            <?= htmlspecialchars($db['name']); ?>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="text-sm text-gray-500 flex justify-between">
-                                    <span class="text-sm text-gray-500"><?= $db['tables']; ?> tables</span>
-                                    <span>Size: <?= number_format($db['size'], 2); ?> MB</span>
-                                </div>
-                            </a>
-                        <?php endforeach; ?>
+                        <div class="text-sm text-gray-500 flex justify-between">
+                            <span class="text-sm text-gray-500"><?= $db['tables']; ?> tables</span>
+                            <span>Size: <?= number_format($db['size'], 2); ?> MB</span>
+                        </div>
+                    </a>
+                    <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
             </div>
@@ -515,11 +542,11 @@ function getWordPressDatabaseInfo($configFilePath)
                 <h2 class="text-lg font-medium text-gray-900 mb-4">System Information</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <?php foreach ($systemInfo as $key => $value): ?>
-                        <div class="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-                            <div class="text-sm font-medium text-gray-500"><?= htmlspecialchars($key); ?></div>
-                            <div class="mt-1 text-lg font-semibold text-gray-900"><?= htmlspecialchars($value); ?>
-                            </div>
+                    <div class="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+                        <div class="text-sm font-medium text-gray-500"><?= htmlspecialchars($key); ?></div>
+                        <div class="mt-1 text-lg font-semibold text-gray-900"><?= htmlspecialchars($value); ?>
                         </div>
+                    </div>
                     <?php endforeach; ?>
                 </div>
             </div>
@@ -530,9 +557,9 @@ function getWordPressDatabaseInfo($configFilePath)
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 p-4">
                         <?php foreach ($extensions as $ext): ?>
-                            <div class="text-sm text-gray-600 bg-gray-50 rounded px-3 py-1">
-                                <?= htmlspecialchars($ext); ?>
-                            </div>
+                        <div class="text-sm text-gray-600 bg-gray-50 rounded px-3 py-1">
+                            <?= htmlspecialchars($ext); ?>
+                        </div>
                         <?php endforeach; ?>
                     </div>
                 </div>
